@@ -1,0 +1,17 @@
+
+td{
+    padding: 15px;
+    text-align: center;
+    height: 50%;
+    border:solid 
+}
+table {
+  margin-bottom: 1em;
+    table-layout:fixed; 
+    width:65%;
+    border: black solid 2px;
+  }
+
+tr{
+    background-color: white;
+  }
