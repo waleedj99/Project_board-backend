@@ -1,2 +1,3 @@
-# Youtube-video-controller
-# Project_board-backend
+# To start  
+npm install
+npm start
