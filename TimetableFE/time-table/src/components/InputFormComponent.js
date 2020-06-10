@@ -32,7 +32,14 @@ const formItemLayoutWithOutLabel = {
     sm: { span: 8, offset: 8 },
   },
 };
-
+const TeachList = (no_sections)=>{
+  for(var i=0;i<no_sections;i++)
+  {return(
+    <div>
+    haa  
+    </div>
+  )}
+}
 const DynamicFieldSet = () => {
   return (
 
@@ -103,7 +110,11 @@ const config = {
 class InputFormComponent extends React.Component{
   constructor(props){
     super(props)
-    this.state={main_json:undefined}
+    this.state={
+      main_json:undefined,
+      no_sections:0,
+      no_subjects:0
+    }
   }
     render(){
         return(
@@ -117,7 +128,24 @@ class InputFormComponent extends React.Component{
       for(let i=1;i<=values.noClass;i++){
         time_arr.push(i)
       }
-      
+      var teachers_list=[]
+      var student_groups=[]
+      for(var i=0;i<values.noSec;i++){
+        var teachers_dict={}
+        console.log(values["Teachers"+i])
+        
+        teachers_list.push(...values["Teachers"+i].split(','))
+        values["Teachers"+i].split(',').forEach((teacher,ind)=>{
+          teachers_dict[values.names[ind]] = teacher
+        })
+        teachers_dict["enpty"] = "-"
+        student_groups.push(teachers_dict)
+      }
+      teachers_list = [...new Set(teachers_list)]
+      var room_list = [...Array(values.noSec).keys()]
+      //console.log(teachers_list)
+      //console.log(student_groups)
+      //console.log(room_list)
       function get_days_list(fi,feq){
         let d_list = []
         for(let j = 0,k=fi;j<feq;j++,k++){
@@ -128,14 +156,16 @@ class InputFormComponent extends React.Component{
         }
         return d_list
       }
-    console.log(daysList.indexOf(values.startClass))
+    //console.log(daysList.indexOf(values.startClass))
       let final_json = {
       no_classes : values.noClass,
       no_days : values.noDays,
       days_list: get_days_list(daysList.indexOf(values.startClass),values.noDays),
+      rooms:room_list,
       time_list: time_arr,
-      subject_list:values.names
-
+      subject_list:values.names,
+      teacher_list:teachers_list,
+      student_groups:student_groups
     }
 
     let dummyJSON = {
@@ -156,7 +186,7 @@ class InputFormComponent extends React.Component{
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dummyJSON)
+      body: JSON.stringify(final_json)
   };
   fetch('/generate', requestOptions)
       .then(response => {
@@ -201,11 +231,11 @@ class InputFormComponent extends React.Component{
       <Row justify="center">
         <Col span={6}>
           <Form.Item name ="noSec" label="No of Sections">
-              <InputNumber />
+              <InputNumber onChange={(value)=>{this.setState({no_sections:value})}} />
           </Form.Item>
         </Col>
         <Col span={6}>
-          <Form.Item name="noClass" label="No of Classes/day:">
+          <Form.Item name="noClass" label="No of Classes/week:">
               <InputNumber />
           </Form.Item>
         </Col>
@@ -218,7 +248,16 @@ class InputFormComponent extends React.Component{
       </Col>
       
       </Row>
-      <Row justify="center">
+    {[...Array(this.state.no_sections)].map((e, i) =>
+    <Row key={i} justify="center">
+    <Col >
+      <Form.Item name={"Teachers"+i} label={"Enter the names of teachers of "+ i+ " section seprated by comma(,)"}>
+    <Input placeholder="The names should be in the same order as the subjects entered"></Input>
+    </Form.Item>
+    </Col>
+    </Row>
+    )}
+    <Row justify="center">
       <Col span={1}>
         <Form.Item>
           <Button type="primary" htmlType="submit">
@@ -227,6 +266,7 @@ class InputFormComponent extends React.Component{
         </Form.Item>
       </Col>
       </Row>
+          
         </Form>    
         <TableComponent main_json = {this.state.main_json}/>
       </div>
