@@ -133,25 +133,36 @@ class InputFormComponent extends React.Component{
       no_classes : values.noClass,
       no_days : values.noDays,
       days_list: get_days_list(daysList.indexOf(values.startClass),values.noDays),
-      no_section:values.noSec,
-      section_list:secList.slice(0,values.noSec),
       time_list: time_arr,
       subject_list:values.names
+
+    }
+
+    let dummyJSON = {
+        no_classes: 3,
+        no_days: 6,
+        days_list: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        rooms: ['400', '401'],
+        time_list: ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00'],
+        subject_list: ['Physics', 'Chemistry', 'Biology', 'Math', 'English', 'Computers'],
+        teacher_list: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6'],
+        student_groups: [{'Physics': 'T1', 'Chemistry': 'T2', 'Biology': 'T3', 'Math': 'T4', 'English': 'T5',
+                          'Computers': 'T6', 'empty': '-'},
+                         {'Physics': 'T1', 'Chemistry': 'T2', 'Biology': 'T3', 'Math': 'T4', 'English': 'T5',
+                         'Computers': 'T6', 'empty': '-'}]
     }
     console.log(final_json)
 
     const requestOptions = {
       method: 'POST',
-      mode:'cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(final_json)
+      body: JSON.stringify(dummyJSON)
   };
-  fetch('http://127.0.0.1:5000/g', requestOptions)
+  fetch('/generate', requestOptions)
       .then(response => {
         console.log(response)
         return response.json()})
       .then(data => this.setState({ main_json: data }));
-  
   }}
     >
         
@@ -164,7 +175,6 @@ class InputFormComponent extends React.Component{
         <Col span={6}>
           <Form.Item
           name="startClass"
-          
           label="Start Day"
           rules={[
             {
