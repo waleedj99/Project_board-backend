@@ -2,6 +2,9 @@ import React from 'react';
 import { InputNumber } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import TableComponent from './TableComponent'
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
+
 import { Form,Row,Col,Input, Button,TimePicker, Checkbox,Select} from 'antd';
 const { Option } = Select;
 const layout = {
@@ -113,9 +116,34 @@ class InputFormComponent extends React.Component{
     this.state={
       main_json:undefined,
       no_sections:0,
-      no_subjects:0
+      no_subjects:0,
+      percentage:0
     }
+    this.sendData = this.sendData.bind(this)
   }
+
+  sendData(final_json){
+
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(final_json)
+        };
+        let progress = 0
+        let updateProgress = ()=>{
+            this.setState({percentage:progress})
+            progress +=2
+        }
+        let interval = setInterval(updateProgress, 1000)
+        fetch('/generate', requestOptions)
+          .then(response => {
+            console.log(response)
+            clearInterval(interval);
+            this.setState({percentage: 100})
+            return response.json()})
+          .then(data => this.setState({ main_json: data , percentage: 100}));
+    }
+
     render(){
         return(
           <div>
@@ -168,6 +196,7 @@ class InputFormComponent extends React.Component{
       student_groups:student_groups
     }
 
+
     let dummyJSON = {
         no_classes: 3,
         no_days: 6,
@@ -183,17 +212,13 @@ class InputFormComponent extends React.Component{
     }
     console.log(final_json)
 
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(final_json)
-  };
-  fetch('/generate', requestOptions)
-      .then(response => {
-        console.log(response)
-        return response.json()})
-      .then(data => this.setState({ main_json: data }));
-  }}
+
+    this.sendData(final_json)
+
+  }
+
+
+  }
     >
         
       <Row justify="center">
@@ -267,7 +292,11 @@ class InputFormComponent extends React.Component{
       </Col>
       </Row>
           
-        </Form>    
+        </Form>
+        <div style={{'width': '5%', 'margin': 'auto'}}>
+            <CircularProgressbar value={this.state.percentage} text={`${this.state.percentage}%`}/>
+        </div>
+        <br/>
         <TableComponent main_json = {this.state.main_json}/>
       </div>
         );
